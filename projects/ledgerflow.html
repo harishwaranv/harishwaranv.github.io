@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LedgerFlow explores payment reliability, idempotency, concurrency, worker recovery, retries, and uncertain processor outcomes.">
+  <title>LedgerFlow | Harishwaran Vijayakumar</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-name" href="../index.html">Harishwaran Vijayakumar</a>
+
+    <nav aria-label="Main navigation">
+      <a href="../engineer.html">Engineer</a>
+      <a href="../projects.html" aria-current="page">Projects</a>
+      <a href="../connect.html">Connect</a>
+    </nav>
+  </header>
+
+  <main class="page-content project-detail">
+    <p><a href="../projects.html">projects</a></p>
+
+    <h1>ledgerflow, a payment reliability simulator</h1>
+
+    <p class="project-subtitle">oct, 2026</p>
+
+    <p>
+      A payment request can fail in a way that is fundamentally
+      ambiguous. The client may never receive a response, even though
+      the server has already completed the operation. From the client's
+      perspective, it is impossible to know whether the payment failed,
+      succeeded, or is still being processed.
+    </p>
+
+    <p>
+      LedgerFlow is a payment reliability simulator designed to
+      investigate what happens when payment requests are retried,
+      duplicated, executed concurrently, interrupted by worker failures,
+      or left with an uncertain processor outcome.
+    </p>
+
+    <p>
+      It does not process real payments or move real money. Its purpose
+      is to model reliability problems at the boundary between an HTTP
+      API, a database, background processing, and an unreliable external
+      payment processor, then experimentally validate the mechanisms
+      used to make those systems safer.
+    </p>
+
+    <h2>the problem with a missing response</h2>
+
+    <p>
+      Imagine a client sends a payment request. The server processes
+      it, the processor completes the operation, and then the network
+      connection fails before the client receives the response.
+    </p>
+
+    <p>
+      The client sees a failure. The underlying operation may have
+      succeeded.
+    </p>
+
+    <p>
+      If the client retries and the server treats the retry as a new
+      payment, the same logical operation can produce duplicate
+      side effects. A missing response is not proof that the original
+      operation failed.
+    </p>
+
+    <p>
+      LedgerFlow treats this ambiguity as a distributed reliability
+      problem, rather than assuming payment processing is simply a
+      matter of creating and updating database records.
+    </p>
+
+    <h2>making retries safe</h2>
+
+    <p>
+      Clients commonly retry requests after timeouts or connection
+      failures. Without protection, two attempts at the same logical
+      payment can create two separate payment records.
+    </p>
+
+    <p>
+      LedgerFlow investigates idempotency as a way to associate
+      multiple HTTP attempts with one logical payment operation.
+      Repeated requests using the same idempotency key should resolve
+      to the same payment rather than independently creating new ones.
+    </p>
+
+    <p>
+      The challenge becomes more subtle when requests arrive
+      concurrently. Two requests can check for an existing key before
+      either has committed its record. Both can observe that the key
+      is missing.
+    </p>
+
+    <p>
+      An application-level existence check alone cannot guarantee
+      correctness. LedgerFlow uses database-enforced uniqueness
+      together with transactional creation so that the database
+      participates directly in enforcing the invariant.
+    </p>
+
+    <h2>recovering from worker failures</h2>
+
+    <p>
+      Payment processing can involve several steps: claiming a job,
+      updating payment state, calling the processor, recording the
+      result, and completing the job.
+    </p>
+
+    <p>
+      A worker can stop between any two of these operations. The
+      application may be left with a payment that is still processing
+      and a job that has not been completed.
+    </p>
+
+    <p>
+      LedgerFlow models worker leases so that unfinished jobs can
+      become recoverable after a worker failure. Recovery must account
+      for the possibility that some external work happened before the
+      worker stopped, even if the result was never recorded locally.
+    </p>
+
+    <h2>handling transient and permanent failures</h2>
+
+    <p>
+      Not every failure has the same meaning. Temporary network
+      interruptions and downstream unavailability may justify another
+      attempt. Permanent processor rejections or invalid business
+      conditions should not be retried indefinitely.
+    </p>
+
+    <p>
+      LedgerFlow distinguishes transient failures from permanent
+      failures and uses bounded exponential backoff for retryable
+      work.
+    </p>
+
+    <p>
+      The configured retry schedule begins at five seconds, increases
+      to ten and twenty seconds, and is capped at sixty seconds.
+      A maximum number of job attempts bounds the retry process.
+    </p>
+
+    <p>
+      The distinction matters because retries are not automatically
+      safe just because a failure appears temporary. The system must
+      also consider whether the previous attempt may already have
+      produced an external side effect.
+    </p>
+
+    <h2>when the processor outcome is unknown</h2>
+
+    <p>
+      The hardest case is an operation whose outcome cannot yet be
+      determined. A processor may complete a payment while a network
+      interruption prevents LedgerFlow from receiving the result.
+    </p>
+
+    <p>
+      Declaring the payment failed would be premature. Declaring it
+      successful would also be unjustified without confirmation.
+      The application needs to preserve uncertainty until it can
+      establish what happened.
+    </p>
+
+    <p>
+      LedgerFlow separates the payment lifecycle from the outcome of
+      an individual payment attempt. Payments have states such as
+      processing, succeeded, and failed. Attempts can record success,
+      failure, or an unknown outcome.
+    </p>
+
+    <p>
+      Keeping UNKNOWN at the attempt level prevents uncertainty about
+      one processor call from being mistaken for a definitive outcome
+      for the entire payment.
+    </p>
+
+    <h2>investigating correctness</h2>
+
+    <p>
+      The project follows an experimental engineering process:
+      identify a failure mode, form a hypothesis, design a mechanism,
+      implement it, deliberately introduce failure, measure the
+      behavior, compare the result against correctness invariants,
+      and test again.
+    </p>
+
+    <p>
+      The objective is to understand not only whether the happy path
+      works, but also what happens when requests overlap, workers stop,
+      responses disappear, or external outcomes remain uncertain.
+    </p>
+
+    <h2>what i'm optimizing for</h2>
+
+    <p>
+      Reliable payment processing requires more than retries and
+      database transactions in isolation. It requires explicit
+      reasoning about duplicate requests, concurrent execution,
+      worker recovery, external side effects, and the limits of
+      what the application knows.
+    </p>
+
+    <p>
+      LedgerFlow provides a controlled environment for investigating
+      these problems and validating the mechanisms intended to
+      handle them safely, without processing real payments.
+    </p>
+
+    <p>
+      <a href="https://github.com/harishwaranvijayakumar-code/ledgerflow"
+         target="_blank"
+         rel="noopener noreferrer">
+        explore the code on github
+      </a>
+    </p>
+
+    <p><a href="../projects.html">← back to projects</a></p>
+  </main>
+</body>
+</html>

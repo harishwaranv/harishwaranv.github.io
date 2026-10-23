@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IndexForge: building reliable search infrastructure with recoverable indexing and safe index replacement.">
+  <title>IndexForge | Harishwaran Vijayakumar</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-name" href="../index.html">Harishwaran Vijayakumar</a>
+
+    <nav aria-label="Main navigation">
+      <a href="../engineer.html">Engineer</a>
+      <a href="../projects.html" aria-current="page">Projects</a>
+      <a href="../connect.html">Connect</a>
+    </nav>
+  </header>
+
+  <main class="page-content project-detail">
+    <p><a href="../projects.html">projects</a></p>
+
+    <h1>indexforge, a search-index management service</h1>
+
+    <p class="project-subtitle">oct, 2026</p>
+
+    <p>
+      Search systems are expected to return useful, up-to-date results
+      even while the data behind them keeps changing. Maintaining that
+      expectation is harder than simply writing a record to a database
+      and sending a request to a search engine.
+    </p>
+
+    <p>
+      IndexForge is a search-index management service designed to keep
+      searchable documents synchronized with their PostgreSQL source
+      records, even when indexing operations, background workers, and
+      index replacements encounter failures.
+    </p>
+
+    <p>
+      It is a working application, not a simulator. It brings together
+      document search, indexing operations, monitoring, a dashboard,
+      and a controlled website-crawling workflow.
+    </p>
+
+    <h2>the consistency problem</h2>
+
+    <p>
+      PostgreSQL holds the authoritative source records, while OpenSearch
+      provides the index used to retrieve documents. Keeping them
+      synchronized introduces a consistency gap between the two systems.
+    </p>
+
+    <p>
+      A document can be created, updated, or deleted in PostgreSQL.
+      The corresponding OpenSearch operation can then fail. The source
+      transaction may have succeeded even though the search index has
+      not received the change.
+    </p>
+
+    <p>
+      The result is a system in which the source record and searchable
+      view disagree. A document may be missing from search, an old
+      version may remain visible, or a deleted record may persist in
+      the index.
+    </p>
+
+    <h2>failures don't stop at the database</h2>
+
+    <p>
+      The same problem becomes more complicated when background workers
+      and retries are involved. A worker may stop after claiming an
+      event. A retry may process the same event more than once. An
+      index rebuild may encounter invalid data or fail validation.
+    </p>
+
+    <p>
+      These are not independent edge cases. They affect the guarantees
+      the overall system can provide, especially when operations are
+      repeated, interrupted, or partially completed.
+    </p>
+
+    <p>
+      The central question is how to keep source data authoritative,
+      make indexing recoverable, and replace an index without exposing
+      users to an incomplete search view.
+    </p>
+
+    <h2>making indexing recoverable</h2>
+
+    <p>
+      IndexForge investigates durable indexing events, retryable
+      processing, and operational monitoring as mechanisms for
+      recovering from failures between the database and search engine.
+    </p>
+
+    <p>
+      Instead of treating a successful database write as proof that
+      search is already up to date, the system needs a way to track
+      the work required to propagate that change and to recover when
+      processing does not finish as expected.
+    </p>
+
+    <p>
+      Retries introduce another requirement: processing must account
+      for repeated delivery and execution. Recovery should not depend
+      on assuming that every event is delivered and processed exactly
+      once.
+    </p>
+
+    <h2>rebuilding without losing the search view</h2>
+
+    <p>
+      Rebuilding an index creates a separate lifecycle problem. A new
+      index must be populated and validated while the existing search
+      view remains useful.
+    </p>
+
+    <p>
+      Invalid source data, failed indexing operations, or unsuccessful
+      validation can prevent a rebuild from producing a trustworthy
+      replacement. Switching too early risks exposing an incomplete
+      index.
+    </p>
+
+    <p>
+      IndexForge explores controlled index replacement and rollback
+      so that index lifecycle operations can be treated as explicit
+      engineering workflows rather than one-off maintenance commands.
+    </p>
+
+    <h2>investigating the failure modes</h2>
+
+    <p>
+      The project follows an investigation-driven approach. Start
+      with a real engineering problem, understand the failure mode,
+      define a correctness invariant, and design a mechanism intended
+      to preserve that invariant.
+    </p>
+
+    <p>
+      Implement the mechanism, introduce or reproduce failure, measure
+      the result, and validate whether the invariant still holds.
+      Documenting the trade-offs is part of the process, not an
+      afterthought.
+    </p>
+
+    <h2>what i'm optimizing for</h2>
+
+    <p>
+      The goal is not simply to make search work on the happy path.
+      It is to make system behavior understandable and recoverable
+      when individual components fail.
+    </p>
+
+    <p>
+      Reliable search infrastructure depends on more than query speed.
+      It also depends on the ability to track indexing work, recover
+      from interrupted processing, understand operational state, and
+      replace an index without compromising the search experience.
+    </p>
+
+    <p>
+      <a href="https://github.com/harishwaranvijayakumar-code/indexforge"
+         target="_blank"
+         rel="noopener noreferrer">
+        explore the code on github
+      </a>
+    </p>
+
+    <p><a href="../projects.html">← back to projects</a></p>
+  </main>
+</body>
+</html>
