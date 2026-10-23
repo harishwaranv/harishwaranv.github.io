@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="FlowPilot: an exploration of GitHub integration, workflow analysis, asynchronous jobs, and practical backend engineering.">
+  <title>FlowPilot | Harishwaran Vijayakumar</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-name" href="../index.html">Harishwaran Vijayakumar</a>
+
+    <nav aria-label="Main navigation">
+      <a href="../engineer.html">Engineer</a>
+      <a href="../projects.html" aria-current="page">Projects</a>
+      <a href="../connect.html">Connect</a>
+    </nav>
+  </header>
+
+  <main class="page-content project-detail">
+    <p><a href="../projects.html">projects</a></p>
+
+    <h1>flowpilot, a developer productivity tool</h1>
+
+    <p class="project-subtitle">oct, 2026</p>
+
+    <p>
+      Building developer tooling is not just about parsing a file or
+      connecting an API. It is about making several independent systems
+      work together reliably, from the moment an event occurs to the
+      moment a developer can understand its outcome.
+    </p>
+
+    <p>
+      FlowPilot is a developer-tooling project built around GitHub
+      integration, workflow parsing, asynchronous analysis jobs,
+      webhook handling, and a web-based dashboard.
+    </p>
+
+    <p>
+      The idea is to bring these responsibilities into one application
+      without turning them into one tightly coupled system.
+    </p>
+
+    <h2>the problem with repository automation</h2>
+
+    <p>
+      A repository stores source code and automation definitions.
+      GitHub emits events as work happens. Webhooks deliver those
+      events to external applications. Workflow definitions need to
+      be interpreted, and analysis may take longer than a typical
+      HTTP request.
+    </p>
+
+    <p>
+      Meanwhile, developers need to understand what the application
+      is doing without depending entirely on logs or direct database
+      queries.
+    </p>
+
+    <p>
+      Each step has its own failure modes. Network requests fail,
+      events can be delivered repeatedly, requests can be invalid,
+      and background work can remain incomplete or fail altogether.
+      Treating the whole process as a single request makes these
+      concerns harder to manage.
+    </p>
+
+    <h2>separating the responsibilities</h2>
+
+    <p>
+      FlowPilot uses Django applications to separate major areas of
+      responsibility, including GitHub integration, workflow parsing,
+      job processing, webhook handling, and dashboard presentation.
+    </p>
+
+    <p>
+      This separation gives each component a clearer purpose. Workflow
+      interpretation can be maintained and tested independently from
+      the user interface. Integration logic does not need to live
+      alongside every dashboard view. Background analysis can have
+      an explicit lifecycle rather than being treated as an ordinary
+      page request.
+    </p>
+
+    <h2>making asynchronous work visible</h2>
+
+    <p>
+      Longer-running analysis should not unnecessarily keep an HTTP
+      request open. It needs a lifecycle that can be represented in
+      persistent application state, so its progress and outcome can
+      be inspected.
+    </p>
+
+    <p>
+      A dashboard provides a place to expose relevant repository,
+      integration, and job information. The goal is to make application
+      state easier to understand, rather than requiring developers
+      to reconstruct it from scattered logs.
+    </p>
+
+    <h2>designing for maintainability</h2>
+
+    <p>
+      FlowPilot emphasizes practical backend engineering: explicit
+      component boundaries, persistent state, external-system
+      integration, automated testing, and repeatable delivery.
+    </p>
+
+    <p>
+      Linting, tests, continuous integration, centralized configuration,
+      and keeping environment-specific secrets out of source code
+      all contribute to a codebase that is easier to change and verify.
+    </p>
+
+    <h2>what i'm optimizing for</h2>
+
+    <p>
+      The goal is not to add complexity for its own sake. It is to
+      build a maintainable foundation for repository workflow analysis
+      where the major responsibilities remain understandable and
+      independently testable.
+    </p>
+
+    <p>
+      The implementation and its tests determine what the project
+      currently supports. The architecture and project goals provide
+      a direction, not a claim that every planned capability is
+      already complete.
+    </p>
+
+    <p>
+      <a href="https://github.com/harishwaranvijayakumar-code/flowpilot"
+         target="_blank"
+         rel="noopener noreferrer">
+        explore the code on github
+      </a>
+    </p>
+
+    <p><a href="../projects.html">← back to projects</a></p>
+  </main>
+</body>
+</html>
