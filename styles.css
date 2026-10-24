@@ -120,13 +120,6 @@ a:focus-visible {
   max-width: 590px;
 }
 
-.intro > h1,
-.intro > p,
-.intro > .intro-copy {
-  width: 100%;
-  max-width: 590px;
-}
-
 .intro h1 {
   margin: 0 0 28px;
   font-size: 28px;
@@ -390,7 +383,7 @@ a:focus-visible {
     font-size: 16px;
   }
 
-  /* Stack photo above introduction on mobile */
+  /* Photo appears between navigation and introduction */
   .intro {
     width: calc(100% - 36px);
     min-height: calc(100svh - 110px);
@@ -399,8 +392,18 @@ a:focus-visible {
     align-items: flex-start;
     justify-content: flex-start;
     gap: 0;
-    padding-top: 8px;
+    padding-top: 145px;
     padding-bottom: 24px;
+  }
+
+  .profile-photo {
+    width: 100px;
+    height: 130px;
+    flex: 0 0 auto;
+    margin-bottom: 28px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 10px;
   }
 
   .intro-content {
@@ -423,16 +426,6 @@ a:focus-visible {
   .intro p,
   .intro-copy p {
     margin-bottom: 18px;
-  }
-
-  .profile-photo {
-    width: 100px;
-    height: 130px;
-    flex: 0 0 auto;
-    margin-bottom: 28px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 10px;
   }
 
   .page-content {
