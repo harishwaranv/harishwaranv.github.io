@@ -390,11 +390,23 @@ a:focus-visible {
     font-size: 16px;
   }
 
+  /* Stack photo above introduction on mobile */
   .intro {
     width: calc(100% - 36px);
     min-height: calc(100svh - 110px);
-    gap: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+    padding-top: 8px;
     padding-bottom: 24px;
+  }
+
+  .intro-content {
+    width: 100%;
+    max-width: 590px;
+    flex: none;
   }
 
   .intro h1 {
@@ -416,7 +428,11 @@ a:focus-visible {
   .profile-photo {
     width: 100px;
     height: 130px;
-    flex-basis: 100px;
+    flex: 0 0 auto;
+    margin-bottom: 28px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 10px;
   }
 
   .page-content {
@@ -457,22 +473,6 @@ a:focus-visible {
 
   .social-links p {
     font-size: 16px;
-  }
-}
-
-/* Narrow screens: stack the photo above the text */
-@media (max-width: 380px) {
-  .intro {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 22px;
-  }
-
-  .profile-photo {
-    width: 100px;
-    height: 130px;
-    flex-basis: auto;
   }
 }
 
