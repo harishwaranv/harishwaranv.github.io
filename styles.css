@@ -26,7 +26,6 @@
 html {
   min-height: 100%;
   scroll-behavior: smooth;
-  line-height: 1.5;
   -webkit-text-size-adjust: 100%;
   tab-size: 4;
 }
@@ -42,8 +41,6 @@ body {
   font-size: 16px;
   font-weight: 400;
   line-height: 1.6;
-  font-feature-settings: normal;
-  font-variation-settings: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -354,18 +351,18 @@ a:focus-visible {
   opacity: 0.7;
 }
 
-/* Mobile layout */
+/* Keep desktop-style layout on mobile */
 @media (max-width: 650px) {
   body {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .site-header {
-    width: calc(100% - 36px);
+    width: min(100% - 36px, 830px);
     padding-top: 22px;
-    align-items: flex-start;
     flex-direction: column;
-    gap: 14px;
+    align-items: flex-start;
+    gap: 20px;
   }
 
   .site-name {
@@ -374,42 +371,38 @@ a:focus-visible {
 
   .site-header nav,
   .site-nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 20px;
-    flex-wrap: wrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
   }
 
   .site-header nav a,
   .site-nav a {
+    flex: 0 0 auto;
     font-size: 16px;
   }
 
-  /* Photo appears between navigation and introduction */
+  /* Keep portrait and introduction side by side */
   .intro {
-    width: calc(100% - 36px);
+    width: min(100% - 36px, 890px);
     min-height: calc(100svh - 110px);
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 0;
-    padding-top: 145px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding-top: 80px;
     padding-bottom: 24px;
   }
 
-  .profile-photo {
-    width: 100px;
-    height: 130px;
-    flex: 0 0 auto;
-    margin-bottom: 28px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 10px;
-  }
-
   .intro-content {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     max-width: 590px;
-    flex: none;
   }
 
   .intro h1 {
@@ -420,7 +413,7 @@ a:focus-visible {
   .intro p,
   .intro-copy {
     font-size: 17px;
-    line-height: 1.75;
+    line-height: 1.7;
   }
 
   .intro p,
@@ -428,6 +421,16 @@ a:focus-visible {
     margin-bottom: 18px;
   }
 
+  .profile-photo {
+    width: 100px;
+    height: 130px;
+    flex: 0 0 100px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 10px;
+  }
+
+  /* Shared content pages */
   .page-content {
     width: calc(100% - 36px);
     padding-top: 64px;
@@ -443,6 +446,7 @@ a:focus-visible {
     line-height: 1.75;
   }
 
+  /* Connect page */
   .connect-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 42px;
@@ -452,6 +456,7 @@ a:focus-visible {
     max-width: 100%;
   }
 
+  /* Project details */
   .project-detail h1 {
     font-size: 25px;
   }
@@ -466,6 +471,29 @@ a:focus-visible {
 
   .social-links p {
     font-size: 16px;
+  }
+}
+
+/* Very narrow screens: prevent the intro from becoming unusable */
+@media (max-width: 380px) {
+  .intro {
+    gap: 12px;
+  }
+
+  .profile-photo {
+    width: 80px;
+    height: 104px;
+    flex-basis: 80px;
+  }
+
+  .intro h1 {
+    font-size: 21px;
+  }
+
+  .intro p,
+  .intro-copy {
+    font-size: 15px;
+    line-height: 1.6;
   }
 }
 
