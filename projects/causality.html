@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Causality: an exploration of distributed tracing, latency regression analysis, execution-aware evidence, and practical backend engineering.">
+  <title>Causality | Harishwaran Vijayakumar</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-name" href="../index.html">Harishwaran Vijayakumar</a>
+
+    <nav aria-label="Main navigation">
+      <a href="../engineer.html">Engineer</a>
+      <a href="../projects.html" aria-current="page">Projects</a>
+      <a href="../connect.html">Connect</a>
+    </nav>
+  </header>
+
+  <main class="page-content project-detail">
+    <p><a href="../projects.html">projects</a></p>
+
+    <h1>causality, a distributed trace analysis tool</h1>
+
+    <p class="project-subtitle">oct, 2026</p>
+
+    <p>
+      Understanding a performance regression is not just about finding
+      a slow operation. In a distributed system, an operation's latency
+      can reflect work performed by its descendants, making it difficult
+      to distinguish where a slowdown appears from where further
+      investigation should begin.
+    </p>
+
+    <p>
+      Causality is a distributed trace analysis tool that compares
+      baseline and degraded trace datasets, identifies operation-level
+      latency regressions, and organizes supporting evidence to help
+      developers investigate potential performance bottlenecks.
+    </p>
+
+    <p>
+      The goal is to turn raw trace data into a structured comparison
+      without treating every observed latency increase as proof of
+      a root cause.
+    </p>
+
+    <h2>the problem with latency regression analysis</h2>
+
+    <p>
+      Distributed traces represent application execution through spans.
+      Each span records an operation, its service, its timing, and
+      potentially its relationship to a parent span. Together, these
+      relationships provide a view of execution across services.
+    </p>
+
+    <p>
+      When performance degrades, raw traces can contain many operations
+      with increased latency. Some increases may represent independent
+      regressions, while others may reflect time spent waiting for
+      slower descendant operations.
+    </p>
+
+    <p>
+      Comparing individual spans without accounting for operation
+      aggregation, sample counts, and execution relationships can make
+      investigation noisy. Developers need a repeatable way to compare
+      datasets and prioritize the evidence that deserves attention.
+    </p>
+
+    <h2>turning traces into comparable evidence</h2>
+
+    <p>
+      Causality validates incoming trace data, normalizes spans into
+      a canonical representation, and groups observations by service
+      and operation. It summarizes operation durations using medians
+      and compares matched operations across baseline and degraded
+      datasets.
+    </p>
+
+    <p>
+      Regression candidates are ranked using latency deltas and
+      supporting sample counts. This provides a consistent view of
+      which operations changed and by how much, rather than relying
+      on isolated span durations.
+    </p>
+
+    <p>
+      The analysis pipeline is separated from the web layer so that
+      trace validation, operation summarization, regression ranking,
+      and evidence reporting can be tested independently of request
+      handling and presentation.
+    </p>
+
+    <h2>reasoning about execution relationships</h2>
+
+    <p>
+      A parent operation can appear slower because work further down
+      its execution tree has become slower. Causality therefore
+      incorporates descendant regression evidence into a second
+      ranking approach.
+    </p>
+
+    <p>
+      This execution-aware analysis helps distinguish operations with
+      their own observed latency increases from potential parent
+      symptoms associated with slower descendants. It adds context
+      to the ranking instead of treating every increase as an
+      independent bottleneck.
+    </p>
+
+    <p>
+      These classifications are investigation heuristics, not proof
+      of causality. The evidence helps narrow the search, while
+      confirming a root cause still requires further analysis.
+    </p>
+
+    <h2>building a reliable trace ingestion workflow</h2>
+
+    <p>
+      The application supports trace datasets supplied as pasted JSON
+      or uploaded JSON files, along with an integration for ingesting
+      traces through the Jaeger Query API.
+    </p>
+
+    <p>
+      Incoming data is validated before analysis. Structural checks
+      cover span identifiers, parent references, timestamps, and
+      execution relationships. Request and dataset size limits help
+      keep malformed or oversized inputs within defined boundaries.
+    </p>
+
+    <p>
+      A normalized trace representation keeps the analysis pipeline
+      independent of the original ingestion path. This creates a
+      consistent boundary between external trace data and the
+      application's internal analysis model.
+    </p>
+
+    <h2>making comparisons persistent and inspectable</h2>
+
+    <p>
+      Successful comparison runs are stored through Django's ORM.
+      Persisted information includes normalized input datasets,
+      trace counts, matched operation counts, regression candidate
+      counts, ranked results, and supporting evidence.
+    </p>
+
+    <p>
+      PostgreSQL support enables deployment with a hosted relational
+      database, while SQLite remains available for local development.
+      Database migrations provide a repeatable way to manage the
+      application's schema.
+    </p>
+
+    <p>
+      Persistence establishes a record of successful analyses.
+      A dedicated user-facing history interface and per-user access
+      separation are not currently implemented.
+    </p>
+
+    <h2>testing the analysis, not just the interface</h2>
+
+    <p>
+      Causality emphasizes deterministic analysis and explicit
+      validation rules. Automated tests cover trace parsing,
+      operation matching, latency ranking, execution-aware evidence,
+      invalid inputs, request limits, ingestion workflows, and
+      database persistence.
+    </p>
+
+    <p>
+      The project has reached 114 passing automated tests, alongside
+      Django system checks and deployment-oriented validation.
+      These checks provide evidence that the implemented behaviors
+      work under the tested conditions, rather than a guarantee
+      against every production failure.
+    </p>
+
+    <h2>what i'm optimizing for</h2>
+
+    <p>
+      The goal is to make distributed performance investigation
+      more structured, explainable, and repeatable. That requires
+      more than calculating latency differences: it requires
+      validating the data, preserving execution relationships,
+      exposing the evidence behind rankings, and communicating
+      the limits of each conclusion.
+    </p>
+
+    <p>
+      Causality is built with Python, Django, PostgreSQL support,
+      automated tests, and a modular trace-analysis pipeline.
+      The application is deployed on Render. Hosted Jaeger ingestion
+      still requires a reachable Jaeger endpoint to be configured;
+      a local endpoint on a developer's machine is not accessible
+      to the hosted service by default.
+    </p>
+
+    <p>
+      The implementation and its tests determine what the project
+      currently supports. Regression classifications prioritize
+      investigation; they do not establish definitive causal
+      relationships between distributed operations.
+    </p>
+
+    <p>
+      <a href="https://github.com/harishwaranvijayakumar-code/causality"
+         target="_blank"
+         rel="noopener noreferrer">
+        explore the code on github
+      </a>
+    </p>
+
+    <p>
+      <a href="https://causality-x0qi.onrender.com"
+         target="_blank"
+         rel="noopener noreferrer">
+        explore the deployed application
+      </a>
+    </p>
+
+    <p><a href="../projects.html">← back to projects</a></p>
+  </main>
+</body>
+</html>
