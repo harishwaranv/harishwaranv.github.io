@@ -86,13 +86,15 @@ a:focus-visible {
   white-space: nowrap;
 }
 
-.site-header nav {
+.site-header nav,
+.site-nav {
   display: flex;
   align-items: center;
   gap: 30px;
 }
 
-.site-header nav a {
+.site-header nav a,
+.site-nav a {
   font-size: 19px;
   font-weight: 700;
   white-space: nowrap;
@@ -100,15 +102,22 @@ a:focus-visible {
 
 /* Homepage introduction */
 .intro {
-  width: min(100% - 64px, 830px);
+  width: min(100% - 64px, 890px);
   min-height: calc(100vh - 72px);
   min-height: calc(100svh - 72px);
   margin: 0 auto;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
   padding-bottom: 30px;
+}
+
+.intro-content {
+  flex: 1;
+  min-width: 0;
+  max-width: 590px;
 }
 
 .intro > h1,
@@ -135,6 +144,17 @@ a:focus-visible {
 
 .intro p:last-child {
   margin-bottom: 0;
+}
+
+/* Homepage profile photo */
+.profile-photo {
+  display: block;
+  width: 140px;
+  height: 180px;
+  flex: 0 0 140px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
 }
 
 /* Optional homepage text wrapper */
@@ -359,18 +379,21 @@ a:focus-visible {
     font-size: 18px;
   }
 
-  .site-header nav {
+  .site-header nav,
+  .site-nav {
     gap: 20px;
     flex-wrap: wrap;
   }
 
-  .site-header nav a {
+  .site-header nav a,
+  .site-nav a {
     font-size: 16px;
   }
 
   .intro {
     width: calc(100% - 36px);
     min-height: calc(100svh - 110px);
+    gap: 18px;
     padding-bottom: 24px;
   }
 
@@ -388,6 +411,12 @@ a:focus-visible {
   .intro p,
   .intro-copy p {
     margin-bottom: 18px;
+  }
+
+  .profile-photo {
+    width: 100px;
+    height: 130px;
+    flex-basis: 100px;
   }
 
   .page-content {
@@ -431,6 +460,22 @@ a:focus-visible {
   }
 }
 
+/* Narrow screens: stack the photo above the text */
+@media (max-width: 380px) {
+  .intro {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .profile-photo {
+    width: 100px;
+    height: 130px;
+    flex-basis: auto;
+  }
+}
+
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -442,4 +487,4 @@ a:focus-visible {
   *::after {
     transition: none !important;
   }
-  }
+}
