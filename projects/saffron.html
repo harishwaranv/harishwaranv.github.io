@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Saffron: a governed workflow execution platform exploring AI-assisted planning, explicit authorization, controlled execution, recovery, and auditable outcomes.">
+  <title>Saffron | Harishwaran Vijayakumar</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-name" href="../index.html">Harishwaran Vijayakumar</a>
+
+    <nav aria-label="Main navigation">
+      <a href="../engineer.html">Engineer</a>
+      <a href="../projects.html" aria-current="page">Projects</a>
+      <a href="../connect.html">Connect</a>
+    </nav>
+  </header>
+
+  <main class="page-content project-detail">
+    <p><a href="../projects.html">projects</a></p>
+
+    <h1>saffron, a governed workflow execution platform</h1>
+
+    <p class="project-subtitle">oct, 2026</p>
+
+    <p>
+      An AI system can produce a reasonable plan without having the
+      authority to carry it out. In an application that interacts with
+      external services, repositories, or operational systems, that
+      distinction becomes a fundamental engineering problem.
+    </p>
+
+    <p>
+      A proposed action may be incomplete, incorrectly scoped, outdated,
+      or inappropriate for the current state of a workflow. Treating
+      an AI-generated plan as permission to execute can turn a useful
+      assistant into an uncontrolled source of side effects.
+    </p>
+
+    <p>
+      Saffron is a Django-based workflow platform built around this
+      separation. It combines AI-assisted planning with explicit
+      confirmation, application-controlled authorization, structured
+      execution, lifecycle management, and recorded outcomes.
+    </p>
+
+    <p>
+      Its built-in assistant, Dune, helps users work with proposed
+      workflows. The application remains responsible for determining
+      what is permitted, how approved work is handled, and what
+      evidence is retained about the result.
+    </p>
+
+    <h2>the problem with turning plans into actions</h2>
+
+    <p>
+      Workflow automation often begins with a straightforward objective:
+      interpret a request, determine the required steps, and carry
+      them out through tools or external APIs. The difficult part is
+      not simply generating those steps. It is ensuring that each
+      consequential operation passes through the right controls.
+    </p>
+
+    <p>
+      Planning and execution have different responsibilities. Planning
+      concerns what could be done to achieve an objective. Execution
+      concerns what the application is authorized to do under its
+      current rules and state.
+    </p>
+
+    <p>
+      When these responsibilities are mixed together, it becomes
+      harder to establish where approval is required, whether an
+      operation is allowed, which component is responsible for an
+      action, and how an interrupted workflow should resume.
+    </p>
+
+    <p>
+      Saffron approaches the problem as an application architecture
+      challenge. Rather than treating the assistant as the ultimate
+      authority, it places workflow state, execution boundaries,
+      and authorization decisions within the application.
+    </p>
+
+    <h2>separating intelligence from authority</h2>
+
+    <p>
+      Dune is Saffron's built-in AI assistant. Its role is to support
+      the planning side of the workflow: helping interpret an objective
+      and work with a structured proposal for achieving it.
+    </p>
+
+    <p>
+      The assistant's involvement does not independently authorize
+      an operation. A proposed plan must remain distinguishable from
+      a confirmed plan, and confirmation must remain distinguishable
+      from permission to perform every action described in it.
+    </p>
+
+    <p>
+      This separation gives the application a clear place to enforce
+      its execution rules. The assistant can contribute to deciding
+      what should happen without becoming the component that decides
+      whether every proposed action is allowed to happen.
+    </p>
+
+    <p>
+      The design principle is deliberately narrow: AI can help
+      determine what to do, but the application governs what it is
+      permitted to do.
+    </p>
+
+    <h2>from workflow proposal to controlled execution</h2>
+
+    <p>
+      Saffron organizes workflow processing into distinct stages.
+      The exact transition depends on the operation and the
+      application's rules, but the architecture separates proposal,
+      confirmation, authorization, execution, and outcome recording.
+    </p>
+
+    <p>
+      This makes the workflow more inspectable than a single operation
+      that combines interpretation, tool selection, and execution.
+      Each stage has a distinct responsibility, and the boundaries
+      provide points at which the application can validate state
+      and enforce its policies.
+    </p>
+
+    <p>
+      Confirmation establishes that a proposed plan has been accepted
+      through the relevant workflow. Authorization addresses whether
+      an action is permitted. Execution performs or simulates the
+      operation through the appropriate execution path. Recording
+      the outcome preserves information about what happened.
+    </p>
+
+    <p>
+      These concepts are related, but they are not interchangeable.
+      A confirmed proposal should not be treated as unrestricted
+      authority, and a successfully processed request should not
+      automatically be interpreted as proof that an external side
+      effect occurred.
+    </p>
+
+    <h2>the execution gateway as a control boundary</h2>
+
+    <p>
+      Saffron uses a controlled execution architecture to separate
+      workflow coordination from the mechanisms that perform
+      individual operations.
+    </p>
+
+    <p>
+      The execution gateway provides a defined boundary between
+      workflow requests and execution adapters. This separation
+      creates a central place for execution-related controls rather
+      than allowing every workflow component to interact with
+      external systems independently.
+    </p>
+
+    <p>
+      Adapters isolate integration-specific behavior from the broader
+      workflow lifecycle. The architecture can therefore distinguish
+      application-level decisions from the details of interacting
+      with an external service.
+    </p>
+
+    <p>
+      This boundary is important for more than code organization.
+      It supports a clearer model of responsibility: the workflow
+      coordinates the operation, the gateway provides a controlled
+      execution path, and the relevant adapter handles its supported
+      integration behavior.
+    </p>
+
+    <p>
+      The gateway does not make an operation safe merely by existing.
+      Authorization rules, adapter constraints, failure handling,
+      and verification still determine the actual guarantees
+      provided by the implementation.
+    </p>
+
+    <h2>simulation and the distinction between intent and effect</h2>
+
+    <p>
+      Saffron includes a simulation path for testing workflow behavior
+      without representing every operation as a real external action.
+      Simulation makes it possible to examine execution decisions
+      and lifecycle behavior while avoiding unintended side effects
+      during development and verification.
+    </p>
+
+    <p>
+      This distinction matters because an operation can be accepted
+      by the application without having been performed by an external
+      system. A simulated result, an execution attempt, and a verified
+      external outcome represent different kinds of evidence.
+    </p>
+
+    <p>
+      Keeping these states conceptually separate helps prevent
+      misleading success signals. It also gives tests a controlled
+      environment in which to exercise workflow behavior without
+      depending on live external services for every scenario.
+    </p>
+
+    <p>
+      Live execution is a separate concern. Its availability depends
+      on the relevant integration, configuration, credentials,
+      permissions, and execution path. The existence of a simulator
+      does not imply that every supported operation has a live
+      implementation.
+    </p>
+
+    <h2>constrained integration with github actions</h2>
+
+    <p>
+      Saffron includes a GitHub integration designed to constrain
+      access to explicitly allowed repositories. This provides a
+      concrete example of how the platform approaches external
+      system boundaries.
+    </p>
+
+    <p>
+      The implemented live-read path supports retrieving GitHub
+      Actions workflow-run and job information for an allowlisted
+      repository. Access to live reads is controlled through
+      environment configuration, allowing the integration to remain
+      disabled until its prerequisites have been configured and
+      verified.
+    </p>
+
+    <p>
+      Repository allowlisting limits the intended scope of the
+      integration. Credentials and application configuration govern
+      whether live access is available; they should not be confused
+      with permission to access arbitrary repositories.
+    </p>
+
+    <p>
+      Saffron also distinguishes read operations from write operations.
+      Creating an external comment, for example, is not equivalent
+      to retrieving workflow status. Write behavior must follow its
+      own authorization and execution requirements, and simulated
+      write behavior must not be presented as a completed live write.
+    </p>
+
+    <p>
+      This constrained approach makes the integration a useful
+      test of the platform's central design principle: external
+      capabilities should be exposed through explicit boundaries,
+      not granted implicitly because an assistant requests them.
+    </p>
+
+    <h2>lifecycle management, leases, and recovery</h2>
+
+    <p>
+      A workflow does not always progress from start to finish
+      without interruption. Operations can fail, workers can stop
+      unexpectedly, and execution can be interrupted before the
+      application has a complete picture of the outcome.
+    </p>
+
+    <p>
+      Saffron addresses these concerns through structured lifecycle
+      management, state transitions, leases, and recovery-related
+      mechanisms. These components help the application reason about
+      the status and ownership of work rather than treating execution
+      as an isolated function call.
+    </p>
+
+    <p>
+      Lifecycle management provides a framework for representing
+      progress and outcomes. Leases help coordinate execution
+      ownership and reduce conflicts when multiple workers or
+      attempts could interact with the same work. Recovery logic
+      provides a basis for handling interrupted or unsuccessful
+      execution.
+    </p>
+
+    <p>
+      These mechanisms address different failure modes. A lease
+      is not a substitute for authorization, a state transition
+      does not prove that an external side effect occurred, and
+      retrying an operation does not automatically make it safe
+      to repeat.
+    </p>
+
+    <p>
+      Reliable recovery therefore depends on the relationship
+      between recorded state, execution evidence, adapter behavior,
+      and the rules governing retries. Saffron treats these as
+      explicit engineering concerns rather than assuming that
+      every failure can be resolved by repeating the operation.
+    </p>
+
+    <h2>auditability and execution evidence</h2>
+
+    <p>
+      A workflow system should make it possible to inspect more
+      than its final status. Developers need to understand what
+      the application attempted, which state it reached, what
+      the execution path reported, and where a failure occurred.
+    </p>
+
+    <p>
+      Saffron incorporates audit and evidence concepts into its
+      execution model. Recording outcomes and relevant execution
+      information supports debugging and provides a basis for
+      distinguishing the application's decisions from the results
+      reported by an adapter.
+    </p>
+
+    <p>
+      Evidence is particularly important when an operation crosses
+      an external boundary. An application-level success response
+      should not be treated as proof of an external effect unless
+      the execution path supplies the evidence needed to support
+      that conclusion.
+    </p>
+
+    <p>
+      The objective is to make workflow outcomes more inspectable
+      and failures easier to investigate. Audit information improves
+      visibility, but its usefulness still depends on which events
+      are recorded, how completely they are captured, and whether
+      the available evidence supports the conclusion being drawn.
+    </p>
+
+    <h2>testing behavior and execution boundaries</h2>
+
+    <p>
+      Saffron uses pytest and pytest-django to test application
+      behavior, workflow rules, and integration boundaries. The
+      test suite helps verify that individual components behave
+      as expected and that changes do not silently break established
+      behavior.
+    </p>
+
+    <p>
+      Testing is especially important for a system that distinguishes
+      proposed work, confirmed work, authorized actions, simulated
+      execution, and live integration behavior. These boundaries
+      need to be tested as application rules rather than left
+      as assumptions about how the assistant will behave.
+    </p>
+
+    <p>
+      The testing approach also separates ordinary automated
+      verification from tests that require real external services.
+      Live integration checks can introduce dependencies on
+      credentials, network availability, repository permissions,
+      and the state of external systems.
+    </p>
+
+    <p>
+      Keeping live GitHub reads disabled during ordinary test runs
+      helps make routine verification more controlled and repeatable.
+      Targeted live checks can then be performed separately when
+      the integration is configured and the test is intended
+      to exercise the external service.
+    </p>
+
+    <p>
+      Passing tests provide evidence for the behaviors covered
+      under the tested conditions. They do not guarantee that
+      every external service, failure scenario, or production
+      configuration will behave identically.
+    </p>
+
+    <h2>deployment and operational readiness</h2>
+
+    <p>
+      Saffron is a Django application deployed on Render, with
+      Neon PostgreSQL as its hosted relational database. Gunicorn
+      serves the application, and WhiteNoise supports the delivery
+      of collected static assets.
+    </p>
+
+    <p>
+      The deployment configuration separates application settings
+      from source code. Environment variables control sensitive
+      configuration and deployment-specific behavior, including
+      the Django secret key, debug mode, allowed hosts, trusted
+      origins, database connection, and optional integration access.
+    </p>
+
+    <p>
+      The application exposes a health endpoint and a readiness
+      endpoint. The health check reports whether the application
+      responds, while the readiness check verifies database
+      connectivity through a simple database query.
+    </p>
+
+    <p>
+      These endpoints serve different operational purposes.
+      A running web process does not necessarily imply that
+      its database is reachable, and a successful readiness
+      check does not guarantee that every application feature
+      or external integration is functioning.
+    </p>
+
+    <p>
+      Database migrations provide a repeatable way to apply
+      schema changes across environments. Production readiness
+      therefore involves more than starting the web process:
+      it includes configuration, database connectivity, schema
+      state, static assets, and the behavior of operational checks.
+    </p>
+
+    <h2>security through explicit boundaries</h2>
+
+    <p>
+      Saffron's security approach follows the same principle
+      as its execution architecture. Capabilities should be
+      constrained by application rules and configuration rather
+      than inferred from an AI-generated request.
+    </p>
+
+    <p>
+      Environment-based configuration keeps secrets outside
+      committed application code. Allowed-host and trusted-origin
+      settings establish deployment boundaries, while repository
+      allowlisting constrains the intended scope of GitHub access.
+    </p>
+
+    <p>
+      Execution authorization and integration credentials solve
+      different problems. Credentials establish the access available
+      to an integration, while application-level rules determine
+      whether a particular workflow action is permitted through
+      Saffron.
+    </p>
+
+    <p>
+      These controls reduce ambiguity about responsibility, but
+      they do not eliminate the need for careful configuration,
+      permission management, input validation, and ongoing security
+      testing. The effective security properties of the platform
+      depend on the implemented controls and how they are deployed.
+    </p>
+
+    <h2>what the architecture makes possible</h2>
+
+    <p>
+      The main architectural benefit of Saffron is separation
+      of concerns. AI-assisted planning can evolve independently
+      of the rules governing execution. Workflow coordination
+      can remain separate from integration-specific code. Simulation
+      can support verification without being confused with live
+      external effects.
+    </p>
+
+    <p>
+      These boundaries also make individual responsibilities easier
+      to test and investigate. A failure in an external integration
+      can be examined separately from a planning problem, while
+      lifecycle and recovery behavior can be tested without
+      requiring every scenario to depend on a live external service.
+    </p>
+
+    <p>
+      The architecture does not make automation risk-free.
+      It provides a structured place to enforce rules, observe
+      execution, and reason about failure. The strength of those
+      guarantees depends on the specific authorization checks,
+      adapter implementations, evidence, and recovery behavior
+      provided by the application.
+    </p>
+
+    <h2>current scope and limitations</h2>
+
+    <p>
+      Saffron is an actively developed project. Its current
+      implementation should be distinguished from capabilities
+      that might be added in a future version.
+    </p>
+
+    <p>
+      The platform includes the Django application, Dune's
+      assistant role, a controlled workflow execution architecture,
+      simulation support, lifecycle and recovery-related mechanisms,
+      automated tests, and a constrained GitHub Actions read
+      integration.
+    </p>
+
+    <p>
+      Live integration capabilities depend on their configuration
+      and supported execution paths. The existence of an execution
+      gateway does not establish that arbitrary third-party
+      operations are available, and the presence of recovery
+      mechanisms does not imply that every external action can
+      be retried safely.
+    </p>
+
+    <p>
+      These limitations are part of the project's engineering
+      scope. Documenting the difference between implemented
+      behavior, configured capabilities, and future possibilities
+      is necessary for a platform whose purpose is to make
+      execution boundaries explicit.
+    </p>
+
+    <h2>what i'm optimizing for</h2>
+
+    <p>
+      The goal is to make AI-assisted automation more controlled,
+      inspectable, and recoverable. That requires more than
+      generating useful plans or connecting a model to external
+      tools. It requires a clear separation between intent,
+      authorization, execution, and evidence.
+    </p>
+
+    <p>
+      Saffron explores this through a modular Django architecture,
+      a controlled execution gateway, explicit workflow stages,
+      simulation, constrained integrations, lifecycle management,
+      and automated verification. Its deployment on Render
+      with Neon PostgreSQL provides a production-hosted environment
+      for the application.
+    </p>
+
+    <p>
+      The central engineering question is not whether an AI
+      assistant can propose an action. It is whether the surrounding
+      system can establish that the action is permitted, route
+      it through the appropriate execution path, handle failure,
+      and accurately represent the resulting evidence.
+    </p>
+
+    <p>
+      Saffron is an exploration of that boundary: an application
+      in which intelligence can inform the workflow without
+      becoming the authority that governs it.
+    </p>
+
+    <p>
+      <a href="https://github.com/harishwaranvijayakumar-code/saffron"
+         target="_blank"
+         rel="noopener noreferrer">
+        explore the code on github
+      </a>
+    </p>
+
+    <p><a href="../projects.html">← back to projects</a></p>
+  </main>
+</body>
+</html>
